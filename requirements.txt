@@ -1,13 +1,13 @@
-numpy==1.26.4
-pandas==2.2.3
-scikit-learn==1.5.2
-xgboost==2.1.1
-scipy==1.13.1
-joblib==1.4.2
-optuna==3.6.1
-streamlit==1.40.1
-openpyxl==3.1.5
-scikit-optimize==0.10.2
-pillow==11.0.0
+numpy>=2.0,<3
+pandas>=2.2,<3
+scikit-learn>=1.6,<2
+xgboost>=2.1,<4
+scipy>=1.14,<2
+joblib>=1.4,<2
+optuna>=3.6,<5
+streamlit>=1.40,<2
+openpyxl>=3.1,<4
+scikit-optimize>=0.10,<1
+pillow>=11,<13
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.5.1+cpu
+torch==2.14.1+cpu
