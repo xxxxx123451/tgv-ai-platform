@@ -159,7 +159,32 @@ with tab_train:
         b.metric("输入特征", "6")
         c.metric("目标变量", TARGET)
         with st.expander("展开查看数据预览", expanded=True):
-            st.dataframe(data.head(12), width="stretch", height=280)
+            # 使用虚拟滚动展示完整数据，不再只截取前 12 行。
+            preview_height = min(720, max(420, 120 + len(data) * 28))
+            st.caption(f"已载入全部 {len(data):,} 行，未截取数据；在表格内上下滚动即可查看，也可点击列标题排序。")
+            st.dataframe(
+                data,
+                width="stretch",
+                height=preview_height,
+                hide_index=False,
+                column_config={
+                    "D1": st.column_config.NumberColumn("D1 (μm)"),
+                    "D2": st.column_config.NumberColumn("D2 (μm)"),
+                    "i0": st.column_config.NumberColumn("i0 (A/m²)"),
+                    "c_ACC": st.column_config.NumberColumn("c_ACC (mol/m³)"),
+                    "c_SUP": st.column_config.NumberColumn("c_SUP (mol/m³)"),
+                    "c_LEVE": st.column_config.NumberColumn("c_LEVE (mol/m³)"),
+                    TARGET: st.column_config.NumberColumn("Area_ratio"),
+                },
+            )
+            st.download_button(
+                "⬇️ 下载已上传的完整数据",
+                data.to_csv(index=False).encode("utf-8-sig"),
+                "tgv_uploaded_data.csv",
+                "text/csv",
+                width="content",
+                key="download_uploaded_data",
+            )
         left, right = st.columns([1, 1])
         with left:
             if st.button(f"🚀 训练 {selected[0]}" if len(selected) == 1 else f"🚀 对比训练 {len(selected)} 个模型", type="primary", width="stretch", disabled=not selected):
