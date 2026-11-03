@@ -1,4 +1,4 @@
-D1,D2,i0,c_ACC,c_SUP,c_LEVE,Area_ratio
+Depth,Wide,i0,c_ACC,c_SUP,c_LEVE,Area_ratio
 20,24,2.0,10,50,5,0.62
 22,26,2.5,12,48,6,0.68
 18,23,1.8,8,55,4,0.57

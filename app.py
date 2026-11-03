@@ -91,8 +91,8 @@ st.markdown('<div class="workflow"><span class="step"><b>01</b>导入数据</spa
 
 MODEL_NAMES = ["ANN", "XGBOOST", "RF", "GPR", "SVR", "PR"]
 UNITS = {
-    "D1": "μm",
-    "D2": "μm",
+    "Depth": "μm",
+    "Wide": "μm",
     "i0": "A/m²",
     "c_ACC": "mol/m³",
     "c_SUP": "mol/m³",
@@ -133,7 +133,7 @@ with st.sidebar:
     st.caption("必需字段")
     st.code(", ".join(FEATURES + [TARGET]), language="text")
     st.caption("输入单位")
-    st.markdown("D1 / D2：μm  ·  i0：A/m²  ·  c_ACC / c_SUP / c_LEVE：mol/m³")
+    st.markdown("孔深 Depth / 孔宽 Wide：μm  ·  i0：A/m²  ·  c_ACC / c_SUP / c_LEVE：mol/m³")
 
 if uploaded:
     try:
@@ -168,8 +168,8 @@ with tab_train:
                 height=preview_height,
                 hide_index=False,
                 column_config={
-                    "D1": st.column_config.NumberColumn("D1 (μm)"),
-                    "D2": st.column_config.NumberColumn("D2 (μm)"),
+                    "Depth": st.column_config.NumberColumn("孔深 Depth (μm)"),
+                    "Wide": st.column_config.NumberColumn("孔宽 Wide (μm)"),
                     "i0": st.column_config.NumberColumn("i0 (A/m²)"),
                     "c_ACC": st.column_config.NumberColumn("c_ACC (mol/m³)"),
                     "c_SUP": st.column_config.NumberColumn("c_SUP (mol/m³)"),
@@ -217,12 +217,12 @@ with tab_predict:
         st.warning("请先在“训练与评估”页训练模型。")
     else:
         chosen = st.selectbox("选择预测模型", list(st.session_state.models), key="chosen_model")
-        defaults = {"D1":20.0, "D2":24.0, "i0":2.0, "c_ACC":10.0, "c_SUP":50.0, "c_LEVE":5.0}
+        defaults = {"Depth":20.0, "Wide":24.0, "i0":2.0, "c_ACC":10.0, "c_SUP":50.0, "c_LEVE":5.0}
         values = {}
         cols = st.columns(3)
         for i, feature in enumerate(FEATURES):
             with cols[i % 3]:
-                label = f"{feature}（{UNITS[feature]}）"
+                label = f"{ {'Depth': '孔深 Depth', 'Wide': '孔宽 Wide'}.get(feature, feature)}（{UNITS[feature]}）"
                 st.markdown(f'<div class="feature"><b>{label}</b></div>', unsafe_allow_html=True)
                 values[feature] = st.number_input(f"输入 {label}", value=defaults[feature], format="%.8g", key=f"input_{feature}", label_visibility="collapsed", help=f"单位：{UNITS[feature]}")
         if st.button("🎯 计算 Area_ratio", type="primary", width="stretch"):
@@ -244,7 +244,7 @@ with tab_algorithms:
         for equation in guide["equations"]:
             st.latex(equation)
         st.caption(guide["symbols"])
-        st.caption("通用符号：x=(D1, D2, i0, c_ACC, c_SUP, c_LEVE)，y=Area_ratio，ŷ 为预测值。")
+        st.caption("通用符号：x=(Depth, Wide, i0, c_ACC, c_SUP, c_LEVE)，y=Area_ratio，ŷ 为预测值。")
     with practice_col:
         st.markdown("#### 擅长解决的问题")
         st.info(guide["strengths"])
@@ -291,6 +291,6 @@ with tab_optuna:
                     st.error(str(exc))
 
 with tab_help:
-    st.markdown('<div class="card"><h3>📌 数据格式</h3><p>CSV 或 Excel 表头必须包含：</p><code>D1, D2, i0, c_ACC, c_SUP, c_LEVE, Area_ratio</code><p>单位：D1/D2 为 μm；i0 为 A/m²；c_ACC、c_SUP、c_LEVE 为 mol/m³。</p><h3>🧭 推荐流程</h3><p>上传数据 → 选择模型 → 开始训练 → 查看 R²/RMSE/MAE → 在“独立输入预测”中逐项填入实验条件。</p><h3>⚠️ 研究提示</h3><p>正式论文建议增加交叉验证、独立外部测试集和异常值审查。GPR 与五阶 PR 在大数据集上可能较慢。</p></div>', unsafe_allow_html=True)
+    st.markdown('<div class="card"><h3>📌 数据格式</h3><p>CSV 或 Excel 表头必须包含：</p><code>Depth, Wide, i0, c_ACC, c_SUP, c_LEVE, Area_ratio</code><p>单位：Depth/Wide 为 μm；i0 为 A/m²；c_ACC、c_SUP、c_LEVE 为 mol/m³。</p><h3>🧭 推荐流程</h3><p>上传数据 → 选择模型 → 开始训练 → 查看 R²/RMSE/MAE → 在“独立输入预测”中逐项填入实验条件。</p><h3>⚠️ 研究提示</h3><p>正式论文建议增加交叉验证、独立外部测试集和异常值审查。GPR 与五阶 PR 在大数据集上可能较慢。</p></div>', unsafe_allow_html=True)
 st.markdown("---")
 st.caption("Dopamine Lab · TGV 电镀填充机器学习框架")

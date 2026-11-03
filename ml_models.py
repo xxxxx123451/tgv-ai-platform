@@ -25,7 +25,7 @@ from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 
-FEATURES = ["D1", "D2", "i0", "c_ACC", "c_SUP", "c_LEVE"]
+FEATURES = ["Depth", "Wide", "i0", "c_ACC", "c_SUP", "c_LEVE"]
 TARGET = "Area_ratio"
 
 
