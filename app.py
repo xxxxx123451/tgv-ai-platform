@@ -5,7 +5,7 @@ import joblib
 import pandas as pd
 import streamlit as st
 
-from ml_models import FEATURES, TARGET, optimize_model, train_models
+from ml_models import FEATURES, TARGET, load_bundle, optimize_model, train_models
 from model_guide import MODEL_GUIDES
 
 st.set_page_config(page_title="TGV · Dopamine Lab", page_icon="🧪", layout="wide", initial_sidebar_state="expanded")
@@ -143,6 +143,28 @@ if uploaded:
         st.error(f"读取文件失败：{exc}")
 data = st.session_state.data
 
+with st.expander("💾 模型存档 · 导入模型并恢复预测", expanded=True):
+    st.caption("无需上传实验数据。选择之前下载的 tgv_models.joblib，导入后进入“独立输入预测”。刷新或服务器重启后可再次导入。")
+    st.warning("仅导入自己保存或完全信任的模型文件：joblib 文件加载时可以执行代码。不要上传来源不明的文件。")
+    model_file = st.file_uploader("选择已保存的模型文件（.joblib）", type=["joblib"], key="model_upload")
+    trusted_model = st.checkbox("我确认此模型文件来源可信，并了解加载风险", key="trust_model")
+    if st.button("📥 导入并恢复预测", disabled=model_file is None or not trusted_model, key="restore_models"):
+        try:
+            model_file.seek(0)
+            bundle = load_bundle(model_file)
+            # 全部校验成功后才替换会话，导入失败保留当前模型。
+            st.session_state.models = bundle["models"]
+            st.session_state.metrics = pd.DataFrame()
+            st.session_state.pop("chosen_model", None)
+            st.success("模型恢复成功，可直接预测：" + "、".join(bundle["models"]))
+        except Exception as exc:
+            st.error(f"模型导入失败，当前模型未替换：{exc}。请确认文件完整，且训练与运行环境的依赖版本兼容。")
+    if st.session_state.models:
+        st.caption("当前可用模型：" + "、".join(st.session_state.models))
+        archive = io.BytesIO()
+        joblib.dump({"models": st.session_state.models, "features": FEATURES, "target": TARGET}, archive)
+        st.download_button("💾 备份当前可用模型", archive.getvalue(), "tgv_models.joblib", key="backup_models")
+
 tab_train, tab_predict, tab_algorithms, tab_optuna, tab_help = st.tabs(["📊 训练与评估", "🎯 独立输入预测", "📚 算法原理", "✨ Optuna 优化", "💡 使用说明"])
 
 with tab_train:
@@ -214,7 +236,7 @@ with tab_predict:
     st.markdown('<div class="section-title">逐项填写实验条件</div>', unsafe_allow_html=True)
     st.caption("每个输入变量都可以单独填写；单位已标注在变量名中，请与训练数据保持一致。")
     if not st.session_state.models:
-        st.warning("请先在“训练与评估”页训练模型。")
+        st.warning("请先训练模型，或在上方“模型存档”中导入已保存的模型。")
     else:
         chosen = st.selectbox("选择预测模型", list(st.session_state.models), key="chosen_model")
         defaults = {"Depth":20.0, "Wide":24.0, "i0":2.0, "c_ACC":10.0, "c_SUP":50.0, "c_LEVE":5.0}

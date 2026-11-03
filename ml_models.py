@@ -176,5 +176,23 @@ def save_bundle(models: Mapping[str, Any], path: str | Path, metadata: Optional[
                  "metadata": metadata or {}}, path)
 
 
-def load_bundle(path: str | Path) -> dict:
-    return joblib.load(path)
+def load_bundle(path) -> dict:
+    """仅加载可信来源的 joblib；反序列化本身可执行代码，并非安全沙箱。"""
+    bundle = joblib.load(path)
+    if not isinstance(bundle, dict):
+        raise ValueError("文件不是本平台支持的模型包。")
+    if bundle.get("features") != FEATURES or bundle.get("target") != TARGET:
+        raise ValueError("模型特征或目标不匹配：需要 Depth、Wide 等六个特征及 Area_ratio；旧版 D1/D2 模型请重新训练。")
+    models = bundle.get("models")
+    allowed = {"ANN", "XGBOOST", "RF", "GPR", "SVR", "PR"}
+    if not isinstance(models, dict) or not models:
+        raise ValueError("模型包中没有可用模型。")
+    for name, model in models.items():
+        if name not in allowed or not callable(getattr(model, "predict", None)):
+            raise ValueError(f"无效模型：{name}")
+        if getattr(model, "n_features_in_", None) != len(FEATURES):
+            raise ValueError(f"{name} 未训练或输入特征数量不匹配。")
+        names = getattr(model, "feature_names_in_", None)
+        if names is not None and list(names) != FEATURES:
+            raise ValueError(f"{name} 的输入特征名称或顺序不匹配。")
+    return bundle
