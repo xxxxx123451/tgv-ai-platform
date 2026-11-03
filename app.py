@@ -7,6 +7,7 @@ import streamlit as st
 
 from ml_models import FEATURES, TARGET, load_bundle, optimize_model, train_models
 from model_guide import MODEL_GUIDES
+from parity_ui import render_parity
 
 st.set_page_config(page_title="TGV · Dopamine Lab", page_icon="🧪", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""
@@ -155,6 +156,9 @@ with st.expander("💾 模型存档 · 导入模型并恢复预测", expanded=Tr
             # 全部校验成功后才替换会话，导入失败保留当前模型。
             st.session_state.models = bundle["models"]
             st.session_state.metrics = pd.DataFrame()
+            # 导入模型并未附带独立测试数据，必须清除旧模型的图，禁止混用。
+            st.session_state.pop("parity_evaluation", None)
+            st.session_state.pop("parity_export", None)
             st.session_state.pop("chosen_model", None)
             st.success("模型恢复成功，可直接预测：" + "、".join(bundle["models"]))
         except Exception as exc:
@@ -181,7 +185,8 @@ with tab_train:
         b.metric("输入特征", "6")
         c.metric("目标变量", TARGET)
         with st.expander("展开查看数据预览", expanded=True):
-            # 使用虚拟滚动展示完整数据，不再只截取前 12 行。
+            # Streamlit 的 dataframe 组件支持虚拟滚动，因此可以安全地展示
+            # 全部上传行，而不会把 1000+ 行一次性渲染成静态 HTML。
             preview_height = min(720, max(420, 120 + len(data) * 28))
             st.caption(f"已载入全部 {len(data):,} 行，未截取数据；在表格内上下滚动即可查看，也可点击列标题排序。")
             st.dataframe(
@@ -212,8 +217,17 @@ with tab_train:
             if st.button(f"🚀 训练 {selected[0]}" if len(selected) == 1 else f"🚀 对比训练 {len(selected)} 个模型", type="primary", width="stretch", disabled=not selected):
                 with st.spinner("模型训练中，请稍候…"):
                     try:
-                        models, metrics, _, _ = train_models(data, test_size, int(seed), selected)
+                        models, metrics, x_test, y_test = train_models(data, test_size, int(seed), selected)
+                        # 所有图均使用本轮留出的同一测试集，不重新划分或拟合。
+                        evaluation = {
+                            "y_true": y_test.to_numpy(copy=True),
+                            "predictions": {name: model.predict(x_test) for name, model in models.items()},
+                            "source_index": y_test.index.tolist(),
+                            "seed": int(seed), "test_size": test_size,
+                        }
                         st.session_state.models, st.session_state.metrics = models, metrics
+                        st.session_state.parity_evaluation = evaluation
+                        st.session_state.pop("parity_export", None)
                         st.success("训练完成！")
                     except Exception as exc:
                         st.error(f"训练失败：{exc}")
@@ -231,6 +245,7 @@ with tab_train:
             m3.metric("对应 RMSE", f"{best['RMSE']:.6g}")
             st.dataframe(st.session_state.metrics.style.format({"R2":"{:.4f}", "RMSE":"{:.6g}", "MAE":"{:.6g}"}), width="stretch")
             st.bar_chart(st.session_state.metrics.set_index("Model")["R2"], color="#ff3d81")
+    render_parity()
 
 with tab_predict:
     st.markdown('<div class="section-title">逐项填写实验条件</div>', unsafe_allow_html=True)

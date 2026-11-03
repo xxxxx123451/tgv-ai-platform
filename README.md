@@ -47,7 +47,7 @@ streamlit run app.py
 
 上传 CSV/Excel，表头必须包含：
 
-`D1, D2, i0, c_ACC, c_SUP, c_LEVE, Area_ratio`
+`Depth, Wide, i0, c_ACC, c_SUP, c_LEVE, Area_ratio`
 
 页面会训练 ANN、XGBOOST、RF、GPR、SVR、PR 六种模型，显示 R²、RMSE、MAE，并支持单样本预测、保存模型和 Optuna（ANN/XGBOOST）搜索。
 
@@ -61,3 +61,32 @@ save_bundle(models, "tgv_models.joblib")
 ```
 
 PR 使用五阶 `PolynomialFeatures`；ANN 使用 `(100, 50)`、ReLU、`learning_rate_init=0.0005`、`batch_size=64`；XGBOOST `max_depth=10`；RF `max_depth=15`；GPR 使用 `ConstantKernel * RBF`；SVR 使用 RBF 和 `gamma="scale"`。
+
+## 论文风格 Parity Plot
+
+“训练与评估”页面完成训练后自动显示独立测试集真实值与预测值对比图。
+可选择全部已训练模型或单个模型；六模型排列为 ANN/XGBOOST/RF、GPR/SVR/PR。
+点击“生成投稿图片”后下载 600 dpi PNG 和矢量 PDF，也可直接下载测试预测 CSV。
+为避免内存累积，网页只保留当前选项的投稿导出；新训练或导入模型会清除旧评估。
+仅导入 joblib 不包含测试集，需使用原始实验数据重新训练以生成评估图。
+
+```python
+from parity_plot import plot_parity
+import matplotlib.pyplot as plt
+
+# y_true: 一维测试集真实值；predictions: {"ANN": 一维预测值, ...}
+fig = plot_parity(y_true, predictions, save_path="parity_plots.png")
+plt.show()
+plt.close(fig)
+```
+
+或者对网页下载的 CSV 运行：
+
+```bash
+python parity_plot.py --csv test_predictions.csv --output parity_plots.png
+```
+
+样式参考 Ding et al. 的 Figure 10（DOI: 10.1016/j.electacta.2026.148450）。
+原图为 3×2，此实现按需求改为 2×3；网页仅计算 Area_ratio 指标，
+不复用论文的五目标平均指标。图上保留 `RMAE` 标签，但其数值为标准 RMSE。
+不将超出 0～1 的输入或预测裁剪，以免掩盖数据或模型问题。
