@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from parity_plot import MODEL_ORDER, PLOT_LOCK, figure_bytes, plot_parity
+from plot_preview import render_plot_preview
 
 
 @st.cache_data(max_entries=4, show_spinner=False)
@@ -35,7 +36,10 @@ def render_parity():
                    if selection == "全部已训练模型" or name == selection}
     if len(predictions) < 6 and selection == "全部已训练模型":
         st.caption("仅绘制本轮成功训练的模型；训练六种模型后显示完整 2×3 对比图。")
-    st.image(preview_bytes(evaluation["y_true"], predictions), use_container_width=True)
+    render_plot_preview(
+        preview_bytes(evaluation["y_true"], predictions),
+        key="parity_preview", base_width=580 if len(predictions) == 1 else 960,
+    )
     st.caption("上方为轻量预览。点击下方按钮生成 600 dpi PNG 与矢量 PDF，生成后即可下载。")
     export_key = tuple(predictions)
     if st.button("🖼️ 生成投稿图片（PNG + PDF）", key="generate_parity_exports"):

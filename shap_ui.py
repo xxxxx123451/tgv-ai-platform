@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from shap_beeswarm import PLOT_LOCK, figure_bytes, plot_shap_beeswarm
+from plot_preview import render_plot_preview
 
 
 def is_single_ann_training(selection_mode, selected):
@@ -44,12 +45,12 @@ def render_ann_shap():
         "Aspect ratio 自动按 Depth / Wide 计算。SHAP 计算中 Depth 与 Wide 被视为一个联合几何特征组，"
         "二者在每个特征联盟中同时加入或移除；ANN 的训练输入和预测接口仍保持原来的六列不变。"
     )
-    st.image(
+    render_plot_preview(
         _preview(
             explanation["shap_values"], explanation["feature_values"],
             tuple(explanation["feature_names"]), explanation["output_name"],
         ),
-        width="stretch",
+        key="ann_shap_preview", base_width=700,
     )
     st.caption("上方为轻量预览；点击按钮生成 600 dpi PNG 和矢量 PDF。")
     if st.button("🎨 生成 ANN SHAP 投稿图片", key="generate_ann_shap_exports"):
