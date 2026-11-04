@@ -13,8 +13,8 @@ def render_r2_chart(metrics):
             x=alt.X("Model:N", sort=data["Model"].tolist(),
                     title="Model", axis=alt.Axis(labelAngle=0)),
             y=alt.Y("R2:Q", title="R²",
-                    scale=alt.Scale(domain=[0, 1], nice=False, zero=True),
-                    axis=alt.Axis(values=[0, 0.2, 0.4, 0.6, 0.8, 1], format=".1f")),
+                    scale=alt.Scale(domain=[-1, 1], nice=False, zero=True),
+                    axis=alt.Axis(values=[-1, -0.5, 0, 0.5, 1], format=".1f")),
             color=alt.Color(
                 "Target:N", title=None,
                 scale=alt.Scale(domain=["Area rate"], range=["#4F61A6"]),
@@ -29,7 +29,7 @@ def render_r2_chart(metrics):
         .configure_view(stroke="#333333")
     )
     st.altair_chart(chart, use_container_width=True)
-    negative = data.loc[data["R2"] < 0]
-    if not negative.empty:
-        details = "、".join(f"{row.Model}: {row.R2:.4f}" for row in negative.itertuples())
-        st.caption(f"R² 可以为负。以下模型的负值超出本图 0–1 显示范围：{details}。完整数值见上方表格。")
+    outside = data.loc[(data["R2"] < -1) | (data["R2"] > 1)]
+    if not outside.empty:
+        details = "、".join(f"{row.Model}: {row.R2:.4f}" for row in outside.itertuples())
+        st.caption(f"以下模型的 R² 超出本图 −1～1 显示范围：{details}。完整数值见上方表格。")
