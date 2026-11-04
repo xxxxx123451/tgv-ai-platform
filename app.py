@@ -37,11 +37,29 @@ html, body, .stApp { font-family:"Microsoft YaHei","Noto Sans SC","Segoe UI",Ari
 .particle:nth-child(6) { left:91%; top:63%; color:#ff3d81; background:#ff3d81; --duration:12s; animation-delay:-4s; }
 .particle:nth-child(7) { left:46%; top:90%; color:#ffd43b; background:#ffd43b; --duration:8s; animation-delay:-1s; }
 @keyframes particleFloat { 0% { transform:translate(0,0) scale(.65); } 50% { transform:translate(28px,-32px) scale(1.25); } 100% { transform:translate(-20px,24px) scale(.8); } }
+.floating-stars { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.floating-star { position:absolute; width:12px; height:12px; opacity:.68; background:#fff; clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%); filter:drop-shadow(0 0 7px #fff); animation:starDrift var(--star-duration) ease-in-out infinite; }
+.floating-star:nth-child(1) { left:12%; top:18%; --star-duration:12s; animation-delay:-2s; transform:scale(.72); }
+.floating-star:nth-child(2) { left:29%; top:82%; --star-duration:15s; animation-delay:-8s; transform:scale(.52); }
+.floating-star:nth-child(3) { left:53%; top:11%; --star-duration:13s; animation-delay:-5s; transform:scale(.9); }
+.floating-star:nth-child(4) { left:72%; top:44%; --star-duration:17s; animation-delay:-10s; transform:scale(.62); }
+.floating-star:nth-child(5) { left:88%; top:78%; --star-duration:14s; animation-delay:-4s; transform:scale(.8); }
+.floating-star:nth-child(6) { left:43%; top:56%; --star-duration:19s; animation-delay:-13s; transform:scale(.45); }
+@keyframes starDrift { 0%,100% { margin:0; opacity:.25; } 30% { margin:14px -8px; opacity:.9; } 65% { margin:-18px 16px; opacity:.48; } }
 .main .block-container { position:relative; z-index:1; max-width:1380px; padding-top:1.65rem; padding-bottom:3rem; }
 .hero { position:relative; overflow:hidden; padding:2.3rem 2.5rem; border-radius:30px; color:white; background:linear-gradient(120deg,#3d168f 0%,#782ad0 45%,#ff3d81 100%); box-shadow:0 20px 55px #5d25b62b; margin-bottom:1rem; }
 .hero:after { content:""; position:absolute; width:260px; height:260px; right:-65px; top:-110px; border:42px solid #ffffff18; border-radius:50%; }
 .hero h1 { position:relative; z-index:1; font-size:clamp(2rem,4vw,3rem); margin:0; letter-spacing:-.045em; line-height:1.18; }
 .hero p { position:relative; z-index:1; margin:.65rem 0 0; opacity:.92; font-size:1.02rem; }
+.laser-hero { min-height:210px; display:flex; align-items:center; padding-right:31%; }
+.laser-hero:before { content:""; position:absolute; right:13%; bottom:-25%; width:330px; height:330px; border-radius:50%; background:radial-gradient(circle, #ff9bd04d 0%, #8e52e61f 48%, transparent 72%); filter:blur(3px); z-index:0; }
+.laser-hero-copy { position:relative; z-index:3; max-width:100%; }
+.laser-hero-character { position:absolute; z-index:2; right:3.5%; bottom:-7%; width:min(31%, 365px); max-height:122%; object-fit:contain; object-position:center bottom; opacity:.84; filter:drop-shadow(0 12px 18px #24063c45) saturate(1.08); pointer-events:none; }
+.laser-star { position:absolute; z-index:3; width:10px; height:10px; background:#ffe3f2; clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%); filter:drop-shadow(0 0 8px #fff); animation:heroStarTwinkle 3.8s ease-in-out infinite; }
+.laser-star:nth-of-type(1) { right:35%; top:22%; animation-delay:-1.2s; }
+.laser-star:nth-of-type(2) { right:8%; top:18%; width:7px; height:7px; animation-delay:-2.7s; }
+.laser-star:nth-of-type(3) { right:29%; bottom:18%; width:6px; height:6px; animation-delay:-.4s; }
+@keyframes heroStarTwinkle { 0%,100% { opacity:.25; transform:scale(.65) rotate(0deg); } 50% { opacity:.95; transform:scale(1.25) rotate(45deg); } }
 .pill { display:inline-block; padding:.35rem .8rem; border-radius:999px; background:#ffd43b; color:#35175f; font-weight:800; font-size:.78rem; margin-bottom:.65rem; }
 .workflow { display:flex; gap:.55rem; flex-wrap:wrap; margin:.2rem 0 1.15rem; }
 .step { background:#ffffffb8; border:1px solid #eadff8; color:#5c4876; padding:.48rem .72rem; border-radius:12px; font-size:.82rem; font-weight:700; box-shadow:0 5px 16px #4b1fb50a; }
@@ -73,11 +91,13 @@ div.stDownloadButton > button { min-height:2.9rem; border:1px solid #d7c3f1; bor
 .algorithm-intro p { color:#5c4876; margin:0; }
 [data-testid="stLatex"] { overflow-x:auto; padding:.6rem 0; }
 hr { border-color:#ded2ec !important; }
-@media (max-width:760px) { .main .block-container { padding-left:1rem; padding-right:1rem; } .hero { padding:1.65rem 1.3rem; border-radius:22px; } .hero h1 { font-size:2rem; } .workflow { display:grid; grid-template-columns:1fr 1fr; } [data-baseweb="tab"] { padding:0 .55rem; font-size:.78rem; } }
-@media (prefers-reduced-motion:reduce) { .particle { animation:none; } div.stButton > button { transition:none; } }
+@media (max-width:760px) { .main .block-container { padding-left:1rem; padding-right:1rem; } .hero { padding:1.65rem 1.3rem; border-radius:22px; } .hero h1 { font-size:2rem; } .workflow { display:grid; grid-template-columns:1fr 1fr; } [data-baseweb="tab"] { padding:0 .55rem; font-size:.78rem; } .laser-hero { min-height:190px; padding-right:1.3rem; } .laser-hero-character { width:35%; right:-2%; opacity:.38; } .laser-hero-copy { max-width:92%; } }
+@media (max-width:520px) { .laser-hero-character { opacity:.22; width:42%; } }
+@media (prefers-reduced-motion:reduce) { .particle, .floating-star, .laser-star { animation:none; } div.stButton > button { transition:none; } }
 </style>
 """, unsafe_allow_html=True)
 st.markdown('<div class="particles" aria-hidden="true"><span class="particle"></span><span class="particle"></span><span class="particle"></span><span class="particle"></span><span class="particle"></span><span class="particle"></span><span class="particle"></span></div>', unsafe_allow_html=True)
+st.markdown('<div class="floating-stars" aria-hidden="true"><span class="floating-star"></span><span class="floating-star"></span><span class="floating-star"></span><span class="floating-star"></span><span class="floating-star"></span><span class="floating-star"></span></div>', unsafe_allow_html=True)
 workspace_mode = st.radio(
     "选择研究工作区",
     ["电镀填充回归", "激光钻孔 AI"],

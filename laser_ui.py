@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import importlib.util
+import base64
 from io import BytesIO
 from datetime import datetime, timezone
+from pathlib import Path
 from zoneinfo import ZoneInfo
 import zipfile
 
@@ -31,6 +33,15 @@ def _dependency_status() -> tuple[bool, bool]:
     return importlib.util.find_spec("torch") is not None, importlib.util.find_spec("skopt") is not None
 
 
+def _laser_character_data_uri() -> str:
+    """Return the faithful original sketch as an inline image for cloud/local parity."""
+    asset = Path(__file__).with_name("assets") / "laser_character.png"
+    if not asset.exists():
+        return ""
+    encoded = base64.b64encode(asset.read_bytes()).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
 def _format_history_datetime(value: str) -> str:
     """Show stored timestamps as China Standard Time with second precision."""
     try:
@@ -43,10 +54,19 @@ def _format_history_datetime(value: str) -> str:
 
 
 def render_laser_platform() -> None:
+    character_uri = _laser_character_data_uri()
+    character = (
+        f'<img class="laser-hero-character" src="{character_uri}" alt="TGV 激光钻孔示意插图">'
+        if character_uri
+        else ""
+    )
     st.markdown(
-        '<div class="hero"><span class="pill">TGV · LASER AI</span>'
+        '<div class="hero laser-hero"><div class="laser-hero-copy">'
+        '<span class="pill">TGV · LASER AI</span>'
         '<h1>🔬 激光钻孔质量与参数优化</h1>'
-        '<p>Residual U-Net 评估 SEM 图像 · 贝叶斯优化迭代建议真实实验参数</p></div>',
+        '<p>Residual U-Net 评估 SEM 图像 · 贝叶斯优化迭代建议真实实验参数</p></div>'
+        + character
+        + '<span class="laser-star"></span><span class="laser-star"></span><span class="laser-star"></span></div>',
         unsafe_allow_html=True,
     )
     st.markdown(
