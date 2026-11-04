@@ -1,6 +1,7 @@
 """Streamlit UI for TGV laser-drilling quality assessment and optimization."""
 from __future__ import annotations
 
+import io
 import importlib.util
 import base64
 from io import BytesIO
@@ -31,6 +32,19 @@ from laser_optimization import (
 
 def _dependency_status() -> tuple[bool, bool]:
     return importlib.util.find_spec("torch") is not None, importlib.util.find_spec("skopt") is not None
+
+
+def _read_quality_labels_csv(uploaded_file) -> pd.DataFrame:
+    """Read label CSVs exported by common spreadsheet locales (UTF-8 or GBK)."""
+    raw = uploaded_file.getvalue()
+    for encoding in ("utf-8-sig", "utf-8", "gb18030", "gbk"):
+        try:
+            return pd.read_csv(io.BytesIO(raw), encoding=encoding)
+        except UnicodeDecodeError:
+            continue
+    raise ValueError(
+        "无法识别 CSV 字符编码。请将文件另存为 UTF-8 CSV，或确认文件确实为 CSV 格式。"
+    )
 
 
 def _laser_character_data_uri() -> str:
@@ -106,7 +120,7 @@ def render_laser_platform() -> None:
         records = None
         if image_files and labels_file:
             try:
-                labels_frame = pd.read_csv(labels_file)
+                labels_frame = _read_quality_labels_csv(labels_file)
                 records = prepare_labeled_sem_records(image_files, labels_frame)
                 st.success(f"已配对 {len(records)} 张图像与真实标注。")
             except Exception as exc:
