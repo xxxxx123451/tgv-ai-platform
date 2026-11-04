@@ -90,3 +90,21 @@ python parity_plot.py --csv test_predictions.csv --output parity_plots.png
 原图为 3×2，此实现按需求改为 2×3；网页仅计算 Area_ratio 指标，
 不复用论文的五目标平均指标。图上保留 `RMAE` 标签，但其数值为标准 RMSE。
 不将超出 0～1 的输入或预测裁剪，以免掩盖数据或模型问题。
+
+## ANN SHAP 参数重要性
+
+当侧栏明确选择“单模型训练 → ANN”时，训练结束后还会自动计算并显示
+ANN 的 SHAP Summary Beeswarm Plot。解释使用本轮测试样本和训练集背景，
+枚举六个输入特征的全部联盟计算介入式 Shapley 值；多模型对比模式不会显示该图。
+页面可下载 600 dpi PNG、矢量 PDF 和逐样本 SHAP 数值 CSV。独立绘图脚本：
+
+```python
+from shap_beeswarm import plot_shap_beeswarm
+fig = plot_shap_beeswarm(
+    shap_values, feature_values, feature_names,
+    output_name="Area_ratio", save_path="shap_beeswarm.png",
+)
+```
+
+直接运行 `python shap_beeswarm.py` 会生成 Figure 12 方向的演示图；模拟值仅用于
+检查排版，不会进入网页训练或模型解释。

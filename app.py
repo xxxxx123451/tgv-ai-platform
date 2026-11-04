@@ -5,9 +5,11 @@ import joblib
 import pandas as pd
 import streamlit as st
 
-from ml_models import FEATURES, TARGET, load_bundle, optimize_model, train_models
+from ml_models import FEATURES, TARGET, load_bundle, optimize_model, train_models, validate_frame
 from model_guide import MODEL_GUIDES
 from parity_ui import render_parity
+from shap_beeswarm import exact_interventional_shap
+from shap_ui import is_single_ann_training, render_ann_shap
 
 st.set_page_config(page_title="TGV · Dopamine Lab", page_icon="🧪", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""
@@ -159,6 +161,8 @@ with st.expander("💾 模型存档 · 导入模型并恢复预测", expanded=Tr
             # 导入模型并未附带独立测试数据，必须清除旧模型的图，禁止混用。
             st.session_state.pop("parity_evaluation", None)
             st.session_state.pop("parity_export", None)
+            st.session_state.pop("ann_shap_explanation", None)
+            st.session_state.pop("ann_shap_export", None)
             st.session_state.pop("chosen_model", None)
             st.success("模型恢复成功，可直接预测：" + "、".join(bundle["models"]))
         except Exception as exc:
@@ -225,9 +229,38 @@ with tab_train:
                             "source_index": y_test.index.tolist(),
                             "seed": int(seed), "test_size": test_size,
                         }
+                        ann_explanation = None
+                        if is_single_ann_training(selection_mode, selected):
+                            # 解释测试集；背景仅来自训练部分，避免把测试样本作为参考基线。
+                            clean = validate_frame(data)
+                            background = clean.loc[
+                                ~clean.index.isin(x_test.index), FEATURES
+                            ]
+                            if background.empty:
+                                raise ValueError("无法构建 ANN SHAP 的训练集背景样本。")
+                            shap_values, explained_values, expected_value = exact_interventional_shap(
+                                models["ANN"], x_test[FEATURES].to_numpy(),
+                                background.to_numpy(), feature_names=FEATURES,
+                                max_samples=500, max_background=16,
+                                random_state=int(seed),
+                            )
+                            ann_explanation = {
+                                "shap_values": shap_values,
+                                "feature_values": explained_values,
+                                "feature_names": list(FEATURES),
+                                "output_name": TARGET,
+                                "expected_value": expected_value,
+                                "background_size": min(len(background), 16),
+                                "seed": int(seed),
+                            }
                         st.session_state.models, st.session_state.metrics = models, metrics
                         st.session_state.parity_evaluation = evaluation
                         st.session_state.pop("parity_export", None)
+                        if ann_explanation is not None:
+                            st.session_state.ann_shap_explanation = ann_explanation
+                        else:
+                            st.session_state.pop("ann_shap_explanation", None)
+                        st.session_state.pop("ann_shap_export", None)
                         st.success("训练完成！")
                     except Exception as exc:
                         st.error(f"训练失败：{exc}")
@@ -246,6 +279,8 @@ with tab_train:
             st.dataframe(st.session_state.metrics.style.format({"R2":"{:.4f}", "RMSE":"{:.6g}", "MAE":"{:.6g}"}), width="stretch")
             st.bar_chart(st.session_state.metrics.set_index("Model")["R2"], color="#ff3d81")
     render_parity()
+    if is_single_ann_training(selection_mode, selected):
+        render_ann_shap()
 
 with tab_predict:
     st.markdown('<div class="section-title">逐项填写实验条件</div>', unsafe_allow_html=True)
