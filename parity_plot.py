@@ -30,7 +30,7 @@ def plot_parity(y_true, predictions, save_path="parity_plots.png"):
     六模型固定 2×3；单模型为单图，其他数量保留 2×3 槽位并隐藏空轴。
     y_true 与每个预测数组必须同序、一维、有限，且至少有两个样本。
     面积比原则上为 0~1，但不截断异常/外推值，以免掩盖误差。
-    图中的 RMAE 沿用用户指定写法，数值实际为标准 RMSE。
+    RMSE 为均方根误差，MAE 为平均绝对误差。
     调用方负责 plt.close(fig)；网页不调用阻塞式 plt.show()。
     """
     truth = np.asarray(y_true, dtype=float)
@@ -86,7 +86,7 @@ def plot_parity(y_true, predictions, save_path="parity_plots.png"):
             ax.text(0.04, 0.96, "Area rate", transform=ax.transAxes,
                     color="red", fontsize=14, fontweight="bold", va="top", ha="left")
             for y, label in zip((0.86, 0.78, 0.70),
-                                (f"MAE = {mae:.4f}", f"RMAE = {rmse:.4f}", f"R² = {r2:.4f}")):
+                                (f"MAE = {mae:.4f}", f"RMSE = {rmse:.4f}", f"R² = {r2:.4f}")):
                 ax.text(0.04, y, label, transform=ax.transAxes,
                         color="black", fontsize=12, va="top", ha="left")
             ax.text(0.95, 0.06, name, transform=ax.transAxes, fontsize=22,

@@ -29,7 +29,7 @@ def render_parity():
                f"本轮训练随机种子 {evaluation['seed']} · 测试比例 {evaluation['test_size']:.0%}。"
                "所有模型使用相同的测试样本与顺序；不使用训练集拟合值，不截断超出 0～1 的预测。")
     st.caption("参考文献 Figure 10 的视觉风格；本图指标仅对应 Area_ratio，"
-               "不是论文中五个输出目标的平均指标。RMAE 为沿用的图注标签，实际计算 RMSE。")
+               "不是论文中五个输出目标的平均指标。RMSE 为均方根误差，MAE 为平均绝对误差。")
     names = [name for name in MODEL_ORDER if name in evaluation["predictions"]]
     selection = st.selectbox("选择对比图", ["全部已训练模型"] + names, key="parity_selection")
     predictions = {name: evaluation["predictions"][name] for name in names

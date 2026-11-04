@@ -88,7 +88,7 @@ python parity_plot.py --csv test_predictions.csv --output parity_plots.png
 
 样式参考 Ding et al. 的 Figure 10（DOI: 10.1016/j.electacta.2026.148450）。
 原图为 3×2，此实现按需求改为 2×3；网页仅计算 Area_ratio 指标，
-不复用论文的五目标平均指标。图上保留 `RMAE` 标签，但其数值为标准 RMSE。
+不复用论文的五目标平均指标。图上统一使用标准标签 `RMSE`（均方根误差）和 `MAE`（平均绝对误差）。
 不将超出 0～1 的输入或预测裁剪，以免掩盖数据或模型问题。
 
 ## ANN SHAP 参数重要性
