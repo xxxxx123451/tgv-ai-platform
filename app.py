@@ -46,16 +46,9 @@ html, body, .stApp { font-family:"Microsoft YaHei","Noto Sans SC","Segoe UI",Ari
 .particle:nth-child(6) { left:91%; top:63%; color:#ff3d81; background:#ff3d81; --duration:12s; animation-delay:-4s; }
 .particle:nth-child(7) { left:46%; top:90%; color:#ffd43b; background:#ffd43b; --duration:8s; animation-delay:-1s; }
 @keyframes particleFloat { 0% { transform:translate(0,0) scale(.65); } 50% { transform:translate(28px,-32px) scale(1.25); } 100% { transform:translate(-20px,24px) scale(.8); } }
-.floating-stars { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-.floating-star { position:absolute; width:12px; height:12px; opacity:.68; background:#fff; clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%); filter:drop-shadow(0 0 7px currentColor); animation:starDrift var(--star-duration) ease-in-out infinite; }
-.floating-star:nth-child(1) { left:12%; top:18%; --star-duration:12s; animation-delay:-2s; transform:scale(.72); }
-.floating-star:nth-child(1) { color:#ff4f9a; background:#ff4f9a; }
-.floating-star:nth-child(2) { left:29%; top:82%; --star-duration:15s; animation-delay:-8s; transform:scale(.52); color:#2de2e6; background:#2de2e6; }
-.floating-star:nth-child(3) { left:53%; top:11%; --star-duration:13s; animation-delay:-5s; transform:scale(.9); color:#ffe66d; background:#ffe66d; }
-.floating-star:nth-child(4) { left:72%; top:44%; --star-duration:17s; animation-delay:-10s; transform:scale(.62); color:#b98cff; background:#b98cff; }
-.floating-star:nth-child(5) { left:88%; top:78%; --star-duration:14s; animation-delay:-4s; transform:scale(.8); color:#ff86c8; background:#ff86c8; }
-.floating-star:nth-child(6) { left:43%; top:56%; --star-duration:19s; animation-delay:-13s; transform:scale(.45); color:#71f5d4; background:#71f5d4; }
-@keyframes starDrift { 0%,100% { margin:0; opacity:.25; } 30% { margin:14px -8px; opacity:.9; } 65% { margin:-18px 16px; opacity:.48; } }
+.floating-stars { position:fixed; inset:0; z-index:999; pointer-events:none; overflow:hidden; }
+.floating-star { position:absolute; left:var(--x); top:var(--y); width:var(--size); height:var(--size); color:var(--color); background:var(--color); opacity:.78; clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%); filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 9px currentColor); animation:starDrift var(--duration) ease-in-out infinite; animation-delay:var(--delay); will-change:transform,opacity; }
+@keyframes starDrift { 0%,100% { transform:translate3d(0,0,0) rotate(0deg) scale(.7); opacity:.38; } 30% { transform:translate3d(16px,-20px,0) rotate(35deg) scale(1.15); opacity:.95; } 65% { transform:translate3d(-13px,17px,0) rotate(75deg) scale(.86); opacity:.62; } }
 .main .block-container { position:relative; z-index:1; max-width:1380px; padding-top:1.65rem; padding-bottom:3rem; }
 .hero { position:relative; overflow:hidden; padding:2.3rem 2.5rem; border-radius:30px; color:white; background:linear-gradient(120deg,#3d168f 0%,#782ad0 45%,#ff3d81 100%); box-shadow:0 20px 55px #5d25b62b; margin-bottom:1rem; }
 .hero:after { content:""; position:absolute; width:260px; height:260px; right:-65px; top:-110px; border:42px solid #ffffff18; border-radius:50%; }
@@ -111,7 +104,22 @@ hr { border-color:#ded2ec !important; }
 </style>
 """, unsafe_allow_html=True)
 st.markdown('<div class="particles" aria-hidden="true"><span class="particle"></span><span class="particle"></span><span class="particle"></span><span class="particle"></span><span class="particle"></span><span class="particle"></span><span class="particle"></span></div>', unsafe_allow_html=True)
-st.markdown('<div class="floating-stars" aria-hidden="true"><span class="floating-star"></span><span class="floating-star"></span><span class="floating-star"></span><span class="floating-star"></span><span class="floating-star"></span><span class="floating-star"></span></div>', unsafe_allow_html=True)
+st.markdown('''<div class="floating-stars" aria-hidden="true">
+<span class="floating-star" style="--x:5%;--y:16%;--size:14px;--color:#ff3d81;--duration:10s;--delay:-2s"></span>
+<span class="floating-star" style="--x:14%;--y:46%;--size:9px;--color:#00cfe8;--duration:14s;--delay:-7s"></span>
+<span class="floating-star" style="--x:9%;--y:82%;--size:18px;--color:#ffd43b;--duration:17s;--delay:-5s"></span>
+<span class="floating-star" style="--x:24%;--y:25%;--size:11px;--color:#b06cff;--duration:13s;--delay:-9s"></span>
+<span class="floating-star" style="--x:31%;--y:68%;--size:15px;--color:#ff70ba;--duration:16s;--delay:-3s"></span>
+<span class="floating-star" style="--x:42%;--y:10%;--size:8px;--color:#45e6c1;--duration:12s;--delay:-6s"></span>
+<span class="floating-star" style="--x:48%;--y:54%;--size:17px;--color:#ff9f43;--duration:18s;--delay:-12s"></span>
+<span class="floating-star" style="--x:55%;--y:88%;--size:10px;--color:#7c6cff;--duration:15s;--delay:-1s"></span>
+<span class="floating-star" style="--x:64%;--y:30%;--size:14px;--color:#00cfe8;--duration:11s;--delay:-8s"></span>
+<span class="floating-star" style="--x:70%;--y:72%;--size:19px;--color:#ff4f9a;--duration:19s;--delay:-4s"></span>
+<span class="floating-star" style="--x:78%;--y:12%;--size:9px;--color:#ffe66d;--duration:13s;--delay:-10s"></span>
+<span class="floating-star" style="--x:84%;--y:48%;--size:16px;--color:#a66cff;--duration:16s;--delay:-6s"></span>
+<span class="floating-star" style="--x:92%;--y:22%;--size:12px;--color:#54e1bc;--duration:14s;--delay:-11s"></span>
+<span class="floating-star" style="--x:95%;--y:84%;--size:18px;--color:#ff86c8;--duration:20s;--delay:-2s"></span>
+</div>''', unsafe_allow_html=True)
 workspace_mode = st.radio(
     "选择研究工作区",
     ["电镀填充回归", "激光钻孔 AI"],
