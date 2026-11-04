@@ -2,13 +2,14 @@
 import io
 from pathlib import Path
 import joblib
+import numpy as np
 import pandas as pd
 import streamlit as st
 
 from ml_models import FEATURES, TARGET, load_bundle, optimize_model, train_models, validate_frame
 from model_guide import MODEL_GUIDES
 from parity_ui import render_parity
-from shap_beeswarm import exact_interventional_shap
+from shap_beeswarm import exact_grouped_interventional_shap
 from shap_ui import is_single_ann_training, render_ann_shap
 
 st.set_page_config(page_title="TGV · Dopamine Lab", page_icon="🧪", layout="wide", initial_sidebar_state="expanded")
@@ -238,16 +239,26 @@ with tab_train:
                             ]
                             if background.empty:
                                 raise ValueError("无法构建 ANN SHAP 的训练集背景样本。")
-                            shap_values, explained_values, expected_value = exact_interventional_shap(
+                            if (x_test["Wide"] == 0).any():
+                                raise ValueError("Wide 含 0，无法计算 Aspect ratio = Depth / Wide。")
+                            shap_values, source_values, expected_value = exact_grouped_interventional_shap(
                                 models["ANN"], x_test[FEATURES].to_numpy(),
                                 background.to_numpy(), feature_names=FEATURES,
+                                feature_groups=((0, 1), (2,), (3,), (4,), (5,)),
                                 max_samples=500, max_background=16,
                                 random_state=int(seed),
                             )
+                            explained_values = np.column_stack([
+                                source_values[:, 0] / source_values[:, 1],
+                                source_values[:, 2:],
+                            ])
                             ann_explanation = {
                                 "shap_values": shap_values,
                                 "feature_values": explained_values,
-                                "feature_names": list(FEATURES),
+                                "source_feature_values": source_values,
+                                "feature_names": [
+                                    "Aspect ratio", "i0", "c_ACC", "c_SUP", "c_LEVE"
+                                ],
                                 "output_name": TARGET,
                                 "expected_value": expected_value,
                                 "background_size": min(len(background), 16),

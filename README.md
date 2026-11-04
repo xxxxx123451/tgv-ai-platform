@@ -94,8 +94,9 @@ python parity_plot.py --csv test_predictions.csv --output parity_plots.png
 ## ANN SHAP 参数重要性
 
 当侧栏明确选择“单模型训练 → ANN”时，训练结束后还会自动计算并显示
-ANN 的 SHAP Summary Beeswarm Plot。解释使用本轮测试样本和训练集背景，
-枚举六个输入特征的全部联盟计算介入式 Shapley 值；多模型对比模式不会显示该图。
+ANN 的 SHAP Summary Beeswarm Plot。解释使用本轮测试样本和训练集背景；Depth 与 Wide
+作为一个联合特征组参与联盟枚举，并以 `Aspect ratio = Depth / Wide` 显示。
+ANN 的六列训练输入不变，多模型对比模式不会显示该图。
 页面可下载 600 dpi PNG、矢量 PDF 和逐样本 SHAP 数值 CSV。独立绘图脚本：
 
 ```python

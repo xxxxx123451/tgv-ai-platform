@@ -249,6 +249,81 @@ def exact_interventional_shap(
     return shap_values, x, expected_value
 
 
+def exact_grouped_interventional_shap(
+    model,
+    feature_values,
+    background_values,
+    *,
+    feature_groups,
+    feature_names=None,
+    max_samples=500,
+    max_background=16,
+    random_state=42,
+):
+    """计算分组介入式 Shapley 值，组内原始变量始终同时加入或移除。
+
+    例如 ``((0, 1), (2,), ...)`` 会把 Depth/Wide 视为一个联合几何玩家，
+    从而得到保持局部准确性（可加性）的几何组贡献。
+    """
+    x = np.asarray(feature_values, dtype=float)
+    background = np.asarray(background_values, dtype=float)
+    if x.ndim != 2 or background.ndim != 2 or x.shape[1] != background.shape[1]:
+        raise ValueError("feature_values 与 background_values 必须是列数相同的二维数组。")
+    if x.shape[0] == 0 or background.shape[0] == 0:
+        raise ValueError("待解释数据和背景数据不能为空。")
+    if not np.isfinite(x).all() or not np.isfinite(background).all():
+        raise ValueError("待解释数据和背景数据必须全部有限。")
+    m = x.shape[1]
+    names = list(feature_names) if feature_names is not None else [f"x{i}" for i in range(m)]
+    if len(names) != m:
+        raise ValueError("feature_names 长度不匹配。")
+    groups = tuple(tuple(int(index) for index in group) for group in feature_groups)
+    flattened = [index for group in groups for index in group]
+    if not groups or any(not group for group in groups) or sorted(flattened) != list(range(m)):
+        raise ValueError("feature_groups 必须无遗漏、无重复地覆盖全部原始特征。")
+
+    rng = np.random.default_rng(random_state)
+    if max_samples is not None and len(x) > max_samples:
+        selected = np.sort(rng.choice(len(x), max_samples, replace=False))
+        x = x[selected]
+    if max_background is not None and len(background) > max_background:
+        selected = np.sort(rng.choice(len(background), max_background, replace=False))
+        background = background[selected]
+
+    group_count = len(groups)
+    coalition_ids = np.arange(2 ** group_count, dtype=int)
+    group_masks = ((coalition_ids[:, None] >> np.arange(group_count)) & 1).astype(bool)
+    feature_masks = np.zeros((len(coalition_ids), m), dtype=bool)
+    for group_index, original_indices in enumerate(groups):
+        feature_masks[:, original_indices] = group_masks[:, [group_index]]
+    grouped_values = np.zeros((len(x), group_count), dtype=float)
+    expected_value = float(_predict(model, background, names).mean())
+    denominator = float(factorial(group_count, exact=True))
+    for baseline in background:
+        mixed = np.where(
+            feature_masks[None, :, :], x[:, None, :], baseline[None, None, :]
+        )
+        coalition_predictions = _predict(
+            model, mixed.reshape(-1, m), names
+        ).reshape(len(x), -1)
+        for group_index in range(group_count):
+            absent = (coalition_ids & (1 << group_index)) == 0
+            base_ids = coalition_ids[absent]
+            sizes = group_masks[absent].sum(axis=1)
+            weights = np.array([
+                factorial(int(size), exact=True)
+                * factorial(group_count - int(size) - 1, exact=True) / denominator
+                for size in sizes
+            ])
+            differences = (
+                coalition_predictions[:, base_ids | (1 << group_index)]
+                - coalition_predictions[:, base_ids]
+            )
+            grouped_values[:, group_index] += differences @ weights
+    grouped_values /= len(background)
+    return grouped_values, x, expected_value
+
+
 if __name__ == "__main__":
     # 仅用于快速查看图形风格；网页训练解释绝不使用这些模拟值。
     rng = np.random.default_rng(42)

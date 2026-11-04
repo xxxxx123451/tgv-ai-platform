@@ -41,8 +41,8 @@ def render_ann_shap():
         "预测的推高或压低作用。排序依据为 mean(|SHAP|)，相关性解释不等同于因果关系。"
     )
     st.info(
-        "文献 Figure 12 使用 Aspect ratio、c_SUP、i0、c_ACC、c_LEVE；当前 ANN 的真实输入为 "
-        "Depth、Wide、i0、c_ACC、c_SUP、c_LEVE，因此本图严格解释这六列，不替换或虚构特征。"
+        "Aspect ratio 自动按 Depth / Wide 计算。SHAP 计算中 Depth 与 Wide 被视为一个联合几何特征组，"
+        "二者在每个特征联盟中同时加入或移除；ANN 的训练输入和预测接口仍保持原来的六列不变。"
     )
     st.image(
         _preview(
