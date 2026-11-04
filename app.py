@@ -9,6 +9,7 @@ import streamlit as st
 from ml_models import FEATURES, TARGET, load_bundle, optimize_model, train_models, validate_frame
 from model_guide import MODEL_GUIDES
 from parity_ui import render_parity
+from r2_chart import render_r2_chart
 from shap_beeswarm import exact_grouped_interventional_shap
 from shap_ui import is_single_ann_training, render_ann_shap
 
@@ -288,7 +289,7 @@ with tab_train:
             m2.metric("最佳 R²", f"{best['R2']:.4f}")
             m3.metric("对应 RMSE", f"{best['RMSE']:.6g}")
             st.dataframe(st.session_state.metrics.style.format({"R2":"{:.4f}", "RMSE":"{:.6g}", "MAE":"{:.6g}"}), width="stretch")
-            st.bar_chart(st.session_state.metrics.set_index("Model")["R2"], color="#ff3d81")
+            render_r2_chart(st.session_state.metrics)
     render_parity()
     if is_single_ann_training(selection_mode, selected):
         render_ann_shap()
