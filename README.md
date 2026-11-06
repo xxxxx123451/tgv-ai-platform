@@ -11,6 +11,39 @@ license: mit
 
 # TGV 电镀填充六模型回归平台
 
+## 添加剂 GNN 预筛（P0 轻量网页工作区）
+
+仓库内的 `tgv_gnn/` 是独立研究原型包。网页新增“添加剂 GNN 预筛”工作区，支持安全加载
+`state_dict + JSON` 模型 ZIP、校验周期结构图 CSV、执行 CPU 推理并下载结果；不在云端训练大型模型、
+生成吸附构型或运行 VASP/DFT。部署仓库依赖通过 `-e ./tgv_gnn` 安装，包的版本范围与本仓库
+NumPy/scikit-learn/PyTorch 依赖保持兼容。
+
+结构 CSV 每行表示一个吸附构型，必须包含：
+
+```text
+molecule_id,symbols,positions_angstrom,cell_angstrom
+```
+
+`symbols`、`positions_angstrom`、`cell_angstrom` 为 JSON 数组；单位为 Å。可选列为
+`parent_molecule_id,config_id,facet,family,pbc,atom_roles`。默认 PBC 为 `[true,true,false]`、
+建图截断半径为 3.5 Å；模型卡中的建图设置优先。必须上传已有训练权重 ZIP；当前仓库不含经实验
+验证的添加剂权重，未导入模型时不会预测。单模型没有经过校准的不确定度或 OOD 保证，结果必须经
+统一协议 DFT/实验复核，不能作为已验证的优化结论。
+
+模型 ZIP 根目录至少包含 `model_config.json`、`model_state.pt`、`model_card.json`；可选包含
+`target_scaler.json`。本地可对 `GraphSAGEGMTRegressor.save()` 产生的文件打包，ZIP 中只放这些文件，
+不要加入 pickle/joblib。
+
+部署前先在 Linux/Python 3.11 环境检查：
+
+```bash
+python -m pip install -r requirements.txt
+python -m pip install -e "./tgv_gnn[test]"
+python -m pytest tgv_gnn/tests tests -q
+python scripts/cloud_gnn_smoke.py
+python -m streamlit run app.py
+```
+
 ## P0 算法全谱系平台
 
 依据《ML算法全谱系规格说明书_TSV_TGV_电子电镀.md》新增 `configs/`、`src/`、`scripts/`、`tests/` P0 工程。它严格采用 TSV/TGV 数据契约字段和单位，派生 AR、添加剂比、有效电流密度、扩散长度与 Peclet-like 特征；所有数值预处理均在 Pipeline 内完成，支持 RepeatedKFold、RepeatedStratifiedKFold、GroupKFold 和 TimeSeriesSplit。

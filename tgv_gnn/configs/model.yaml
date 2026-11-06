@@ -1,0 +1,17 @@
+schema_version: "1.0"
+adsorption:
+  model_type: game_net_graphsage
+  in_features: 19
+  hidden_dim: 160
+  n_conv: 3
+  head_hidden_dim: 64
+  pooling: gmt
+  gmt_k: 8
+  dropout: 0.0
+uncertainty:
+  method: deep_ensemble
+  n_ensemble: 5
+  report_ood: true
+redox:
+  separate_oxidation_and_reduction_models: true
+  input_graph: molecule_only

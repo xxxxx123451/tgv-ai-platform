@@ -1,0 +1,15 @@
+schema_version: "1.0"
+energy_unit: eV
+adsorption_energy_definition: E_slab_adsorbate - E_clean_slab - E_isolated_molecule
+negative_means_exothermic: true
+export_format: vasp
+selective_dynamics: true
+require_protocol_match_on_append: true
+protocol:
+  dft_code: null
+  functional: null
+  dispersion_correction: null
+  pseudopotential: null
+  plane_wave_cutoff_eV: null
+  kpoints: null
+  solvation_model: null

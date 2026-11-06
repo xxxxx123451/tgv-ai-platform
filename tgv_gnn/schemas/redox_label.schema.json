@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Redox label with explicit reference",
+  "type": "object",
+  "required": ["molecule_id", "canonical_smiles", "charge", "protonation_state", "reference_electrode_raw", "solvent", "source"],
+  "properties": {
+    "molecule_id": {"type": "string"},
+    "canonical_smiles": {"type": "string"},
+    "charge": {"type": "integer"},
+    "protonation_state": {"type": "string"},
+    "reference_electrode_raw": {"type": "string", "minLength": 1},
+    "E_ox_vs_SHE": {"type": "number"},
+    "E_red_vs_SHE": {"type": "number"},
+    "solvent": {"type": "string"},
+    "source": {"type": "string"}
+  },
+  "anyOf": [{"required": ["E_ox_vs_SHE"]}, {"required": ["E_red_vs_SHE"]}],
+  "additionalProperties": true
+}

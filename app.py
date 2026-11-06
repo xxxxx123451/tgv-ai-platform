@@ -122,7 +122,7 @@ st.markdown('''<div class="floating-stars" aria-hidden="true">
 </div>''', unsafe_allow_html=True)
 workspace_mode = st.radio(
     "选择研究工作区",
-    ["电镀填充回归", "激光钻孔 AI"],
+    ["电镀填充回归", "激光钻孔 AI", "添加剂 GNN 预筛"],
     horizontal=True,
     key="workspace_mode",
 )
@@ -132,6 +132,19 @@ if workspace_mode == "激光钻孔 AI":
     render_laser_platform()
     st.markdown("---")
     st.caption("Dopamine Lab · TGV 激光钻孔质量评估与贝叶斯优化")
+    st.stop()
+if workspace_mode == "添加剂 GNN 预筛":
+    try:
+        from gnn_ui import render_gnn_workspace
+    except ImportError as exc:
+        st.error(
+            "添加剂 GNN 模块依赖未安装或无法导入。请检查云端 requirements.txt 中的 "
+            f"PyTorch / PyTorch Geometric 依赖。详情：{exc}"
+        )
+    else:
+        render_gnn_workspace()
+    st.markdown("---")
+    st.caption("Dopamine Lab · TGV 添加剂 GNN 候选预筛研究原型（P0）")
     st.stop()
 plating_character_uri = _asset_data_uri("assets/plating_character.png")
 plating_character = (

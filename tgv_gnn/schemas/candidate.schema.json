@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TGV additive candidate",
+  "type": "object",
+  "required": ["molecule_id", "canonical_smiles", "additive_role", "formal_charge", "protonation_state", "counterion_policy", "chemical_family", "source"],
+  "properties": {
+    "molecule_id": {"type": "string", "minLength": 1},
+    "canonical_smiles": {"type": "string", "minLength": 1},
+    "additive_role": {"enum": ["accelerator", "suppressor", "leveler", "unknown"]},
+    "formal_charge": {"type": "integer"},
+    "protonation_state": {"type": "string"},
+    "counterion_policy": {"type": "string"},
+    "chemical_family": {"type": "string"},
+    "source": {"type": "string"}
+  },
+  "additionalProperties": true
+}

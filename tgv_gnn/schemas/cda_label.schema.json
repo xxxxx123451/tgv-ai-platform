@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Condition-aware CDA observation",
+  "type": "object",
+  "required": ["molecule_id", "additive_role", "concentration", "CuSO4_concentration", "H2SO4_concentration", "chloride_concentration", "temperature", "electrode_potential", "current_density", "rotation_rate_or_flow_velocity", "measurement_protocol", "cda_label", "source"],
+  "properties": {
+    "molecule_id": {"type": "string"},
+    "additive_role": {"enum": ["accelerator", "suppressor", "leveler", "unknown"]},
+    "concentration": {"type": "number"},
+    "CuSO4_concentration": {"type": "number"},
+    "H2SO4_concentration": {"type": "number"},
+    "chloride_concentration": {"type": "number"},
+    "temperature": {"type": "number"},
+    "electrode_potential": {"type": "number"},
+    "current_density": {"type": "number"},
+    "rotation_rate_or_flow_velocity": {"type": "number"},
+    "measurement_protocol": {"type": "string"},
+    "cda_label": {"enum": ["strong_convection_dependent", "weak_or_diffusion_controlled", "potential_dependent", "unknown"]},
+    "source": {"type": "string"}
+  },
+  "additionalProperties": true
+}

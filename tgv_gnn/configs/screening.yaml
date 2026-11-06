@@ -1,0 +1,10 @@
+schema_version: "1.0"
+calibration_status: uncalibrated
+hard_filter_enabled: false
+warning: 阈值未由统一 Cu DFT/实验数据标定时，只允许连续排序。
+role_rules: {}
+cda:
+  enabled: false
+  minimum_total_samples: 100
+  minimum_samples_per_class: 20
+  hard_filter: false

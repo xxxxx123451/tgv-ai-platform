@@ -1,0 +1,16 @@
+schema_version: "1.0"
+seed: 42
+primary_facet: Cu111
+supported_facets: [Cu111, Cu100]
+game_net_compatibility:
+  element_vocab: [Ag, Au, C, Cd, Co, Cu, Fe, H, Ir, N, Ni, O, Os, Pd, Pt, Rh, Ru, S, Zn]
+  unknown_element_policy: reject
+graph:
+  builder: pbc_radius
+  cutoff_angstrom: 3.5
+  pbc: [true, true, false]
+  bidirectional: true
+  edge_features: [distance_angstrom]
+grouping:
+  parent_key: parent_molecule_id
+  family_key: chemical_family

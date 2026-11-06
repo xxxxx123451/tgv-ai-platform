@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cu adsorption DFT label",
+  "type": "object",
+  "required": ["molecule_id", "config_id", "facet", "E_slab_adsorbate", "E_clean_slab", "E_isolated_molecule", "E_ads", "energy_unit", "calculation_version"],
+  "properties": {
+    "molecule_id": {"type": "string"},
+    "config_id": {"type": "string"},
+    "facet": {"enum": ["Cu111", "Cu100"]},
+    "E_slab_adsorbate": {"type": "number"},
+    "E_clean_slab": {"type": "number"},
+    "E_isolated_molecule": {"type": "number"},
+    "E_ads": {"type": "number"},
+    "energy_unit": {"const": "eV"},
+    "calculation_version": {"type": "string"}
+  },
+  "additionalProperties": true
+}
